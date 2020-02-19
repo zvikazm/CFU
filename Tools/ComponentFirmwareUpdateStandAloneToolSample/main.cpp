@@ -452,7 +452,15 @@ Return Value:
 
         const char* tag = tokens[0].c_str();
         const char* value = tokens[1].c_str();
-        if (StringUtil::comparecsi(tag, "VID"))
+        if (StringUtil::comparecsi(tag, "DEVICE_TYPE"))
+        {
+            ProtocolSettings.DevType = static_cast<UINT8>(strtoul(value, NULL, 0));
+        }
+        else if (StringUtil::comparecsi(tag, "DEVICE_STRING"))
+        {
+            memcpy(ProtocolSettings.DevStr, value, strlen(value));
+        }
+        else if (StringUtil::comparecsi(tag, "VID"))
         {
             ProtocolSettings.Vid = static_cast<UINT16>(strtoul(value, NULL, 16));
         }

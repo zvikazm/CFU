@@ -49,6 +49,8 @@ public:
 
     struct CfuHidDeviceConfiguration
     {
+        UINT8  DevType;
+        char DevStr[256];
         UINT16 Vid;
         UINT16 Pid;
         USAGE UsagePage;

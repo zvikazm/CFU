@@ -156,62 +156,60 @@ Exit:
 _Check_return_
 HRESULT
 FwUpdateCfu::GetVersion(_In_z_ PCWSTR DevicePath,
-                        _Out_  VersionReport& VerReport,
-                        _In_   CfuHidDeviceConfiguration& ProtocolSettings)
-/*++
+    _Out_  VersionReport& VerReport,
+    _In_   CfuHidDeviceConfiguration& ProtocolSettings)
+    /*++
 
-Routine Description:
+    Routine Description:
 
-    Given a path and configuration, get the version.
+        Given a path and configuration, get the version.
 
-Arguments:
-    
-    DevicePath       -- Path to the device.
-    VerReport        -- The list of devices if found.
-    ProtocolSettings -- The Vendor ID (VID), Product ID (PID), HID usage page
-                        and Top Level Collection (TLC) of the device.
+    Arguments:
 
-Return Value:
+        DevicePath       -- Path to the device.
+        VerReport        -- The list of devices if found.
+        ProtocolSettings -- The Vendor ID (VID), Product ID (PID), HID usage page
+                            and Top Level Collection (TLC) of the device.
 
-  S_OK on success or underlying failure code.
+    Return Value:
 
---*/
+      S_OK on success or underlying failure code.
+
+    --*/
 
 {
     HID_DEVICE device;
     NTSTATUS   status;
     HRESULT    hr = S_OK;
     device.hDevice = INVALID_HANDLE_VALUE;
-    
+
     // Check that the VID/PID matches.
     wchar_t vidPidFilterString[256] = { 0 };
     memset(&VerReport, 0, sizeof(VerReport));
 
 
-    // Filter on both if both set
-    if (ProtocolSettings.Vid && ProtocolSettings.Pid) 
+    if (ProtocolSettings.DevType == 0)
     {
-        swprintf(vidPidFilterString, 256, L"VID_%04X&PID_%04X", 
-                 ProtocolSettings.Vid, ProtocolSettings.Pid);
-        if (!wcsstr(DevicePath, vidPidFilterString))
+        // Filter on both if both set
+        if (ProtocolSettings.Vid && ProtocolSettings.Pid)
         {
-            // The device found doesn't match the vid and pid
-            //wprintf(L"The device found does not match the VID/PID\n");
-            hr = HRESULT_FROM_WIN32(ERROR_NOT_FOUND);
-            goto Exit;
-
+            swprintf(vidPidFilterString, 256, L"VID_%04X&PID_%04X", ProtocolSettings.Vid, ProtocolSettings.Pid);
+        }
+        else// Filter on vid only (vid is mandatory)
+        {
+            swprintf(vidPidFilterString, 256, L"VID_%04X", ProtocolSettings.Vid);
         }
     }
-    // Filter on vid only (vid is mandatory)
     else
     {
-        swprintf(vidPidFilterString, 256, L"VID_%04X", ProtocolSettings.Vid);
-        if (!wcsstr(DevicePath, vidPidFilterString))
-        {
-            // The device found doesn't match the vid
-            hr = HRESULT_FROM_WIN32(ERROR_NOT_FOUND);
-            goto Exit;
-        }
+        mbstowcs(vidPidFilterString, ProtocolSettings.DevStr, strlen(ProtocolSettings.DevStr));
+    }
+
+    if (!wcsstr(DevicePath, vidPidFilterString))
+    {
+        // The device found doesn't match the vid
+        hr = HRESULT_FROM_WIN32(ERROR_NOT_FOUND);
+        goto Exit;
     }
 
     // Open a handle to the device.
@@ -295,6 +293,7 @@ Exit:
     if (device.hDevice != INVALID_HANDLE_VALUE)
     {
         CloseHandle(device.hDevice);
+        device.hDevice = INVALID_HANDLE_VALUE;
     }
     return hr;
 }
