@@ -486,7 +486,7 @@ Return Value:
         {
             ProtocolSettings.Reports[FwUpdateCfu::FWUpdateContent].Usage = static_cast<UINT16>(strtoul(value, NULL, 16));
             ProtocolSettings.Reports[FwUpdateCfu::FWUpdateContent].inOutFeature = HidP_Output;
-            ProtocolSettings.Reports[FwUpdateCfu::FWUpdateContent].size = 60; //bytes
+            ProtocolSettings.Reports[FwUpdateCfu::FWUpdateContent].size = 255; //bytes
         }
         else if (StringUtil::comparecsi(tag, "CONTENT_RESPONSE_INPUT_USAGE"))
         {

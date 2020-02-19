@@ -40,7 +40,7 @@ Environment:
 
 #include <vector>
 #include <assert.h>
-#define MAX_HID_CONTENT_PAYLOAD 52
+#define MAX_HID_CONTENT_PAYLOAD 247
 #define MAKE_STRING_CASE(VAR) case VAR : return (L#VAR)
 
 class FwUpdateCfu
