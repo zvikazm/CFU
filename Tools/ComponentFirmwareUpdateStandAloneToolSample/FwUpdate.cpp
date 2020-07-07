@@ -147,10 +147,38 @@ Return Value:
     {
         hr = S_OK;
     }
+    else
+    {
+        wchar_t vidPidFilterString[256] = { 0 };
+        GetVidPidFilterString(vidPidFilterString, ProtocolSettings);
+        wprintf(L"Error - Device not found %s", vidPidFilterString);
+    }
 
 Exit:
     SAFE_DELETEA(pInterfaceList);
     return hr;
+}
+
+_Check_return_
+void
+FwUpdateCfu::GetVidPidFilterString(_Out_  wchar_t* vidPidFilterString, _In_   CfuHidDeviceConfiguration& ProtocolSettings)
+{
+    if (ProtocolSettings.DevType == 0)//use VID and PID from configuration file
+    {
+        // Filter on both if both set
+        if (ProtocolSettings.Vid && ProtocolSettings.Pid)
+        {
+            swprintf(vidPidFilterString, 256, L"VID_%04X&PID_%04X", ProtocolSettings.Vid, ProtocolSettings.Pid);
+        }
+        else// Filter on vid only (vid is mandatory)
+        {
+            swprintf(vidPidFilterString, 256, L"VID_%04X", ProtocolSettings.Vid);
+        }
+    }
+    else //use device string from configuration file
+    {
+        mbstowcs(vidPidFilterString, ProtocolSettings.DevStr, strlen(ProtocolSettings.DevStr));
+    }
 }
 
 _Check_return_
@@ -187,23 +215,7 @@ FwUpdateCfu::GetVersion(_In_z_ PCWSTR DevicePath,
     wchar_t vidPidFilterString[256] = { 0 };
     memset(&VerReport, 0, sizeof(VerReport));
 
-
-    if (ProtocolSettings.DevType == 0)
-    {
-        // Filter on both if both set
-        if (ProtocolSettings.Vid && ProtocolSettings.Pid)
-        {
-            swprintf(vidPidFilterString, 256, L"VID_%04X&PID_%04X", ProtocolSettings.Vid, ProtocolSettings.Pid);
-        }
-        else// Filter on vid only (vid is mandatory)
-        {
-            swprintf(vidPidFilterString, 256, L"VID_%04X", ProtocolSettings.Vid);
-        }
-    }
-    else
-    {
-        mbstowcs(vidPidFilterString, ProtocolSettings.DevStr, strlen(ProtocolSettings.DevStr));
-    }
+    GetVidPidFilterString(vidPidFilterString, ProtocolSettings);
 
     if (!wcsstr(DevicePath, vidPidFilterString))
     {

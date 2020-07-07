@@ -473,6 +473,10 @@ public:
                                 _In_ CfuHidDeviceConfiguration& VrotocolSettings);
 
     _Check_return_
+    void
+    GetVidPidFilterString(_Out_  wchar_t* vidPidFilterString, _In_   CfuHidDeviceConfiguration& ProtocolSettings);
+
+    _Check_return_
     HRESULT
     GetVersion(_In_z_ PCWSTR DevicePath, 
                _Out_  VersionReport& VersionReport, 
