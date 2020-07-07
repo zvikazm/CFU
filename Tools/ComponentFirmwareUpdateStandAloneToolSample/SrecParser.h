@@ -40,7 +40,7 @@ Environment:
 static BOOL ProcessSrecBin(std::ifstream& srecBinStream, FwUpdateCfu::ContentData& contentData)
 {
     contentData.length = 0;
-    char pBuff[300] = { 0 };
+    char pBuff[64] = { 0 };
 
     if (srecBinStream.eof())
     {
